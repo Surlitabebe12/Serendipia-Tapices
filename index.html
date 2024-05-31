@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serendipia - Tienda de tapices</title>
+    <link rel="icon" type="image/png" href="espiral.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Libre Baskerville', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        header {
+            background-color: #FFC0CB;
+            padding: 20px;
+            color: #333333;
+            text-align: center;
+        }
+        header .sub-header {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .image-modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .image-modal .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .image-modal .close:hover,
+        .image-modal .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .products-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 0 10px;
+            margin-bottom: 80px;
+        }
+        .product {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 15px;
+            width: 220px;
+            height: 350px;
+            box-sizing: border-box;
+            overflow: hidden;
+            transition: color 0.2s;
+            position: relative;
+            background-color: white;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 180px; /* Ajusta la altura de la imagen */
+            cursor: pointer;
+        }
+
+        .image-container img {
+            width: 90%; /* Ajustar al 90% */
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-name {
+            margin-top: 10px;
+            font-size: 0.9em;
+            max-height: 3em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            white-space: normal;
+            transition: color 0.1s ease; /* Añadir transición para un efecto más suave */
+        }
+
+        .product-name:hover {
+            color: #EE1492; /* Un rosa más oscuro */
+        }
+
+        .quantity-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .quantity-container input {
+            width: 35px;
+            text-align: center;
+            font-size: 1em;
+        }
+        .quantity-container button {
+            width: 20px;
+            height: 20px;
+            font-size: 0.8em;
+            background-color: #FFC0CB;
+            color: #333333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .product-quantity {
+            font-size: 0.5em;
+            font-weight: bold;
+            margin-top: auto;
+            margin-bottom: 5px;
+        }
+        .product-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: auto;
+            margin-bottom: 10px;
+        }
+        .product:hover .product-name,
+        .product:hover .product-price,
+        .product:hover .product-quantity {
+            color: #FFC0CB;
+        }
+        #cart-icon {
+            position: fixed;
+            right: 25px;
+            top: 30px;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.3s ease;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #FFC0CB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #cart-icon img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+        }
+        #cart-counter {
+            font-size: 1em;
+            color: white;
+            background-color: red;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -8px;
+            right: 2px;
+            transition: transform 0.3s ease;
+        }
+        #cart-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        #cart-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 75%;
+            max-width: 320px;
+            border-radius: 15px;
+        }
+        #cart-modal .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        #cart-modal .close:hover,
+        #cart-modal .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #cart-modal h2 {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        #cart-modal ul {
+            list-style: none;
+            padding: 0;
+        }
+        #cart-modal li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #cart-modal img {
+            width: 91px;
+            height: 63px;
+            object-fit: contain;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #cart-modal .item-details {
+            flex-grow: 1;
+            margin-left: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            font-size: 0.8em;
+        }
+        #cart-modal .item-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            width: 50px;
+        }
+        #total {
+            text-align: right;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .share-cart-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 5px;
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            margin-top: 31px;
+            width: 55%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .share-cart-btn img {
+            margin-right: 5px;
+            width: 10px;
+            height: 10px;
+        }
+        .add-to-cart-btn {
+            padding: 5px 10px;
+            margin-top: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            background-color: #FFC0CB;
+            color: #333333;
+            border: none;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Libre Baskerville', serif; /* Aplicar la fuente del encabezado */
+        }
+        .add-to-cart-btn .cart-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 128, 0, 0.2);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.5s;
+            pointer-events: none;
+        }
+        .add-to-cart-btn.active .cart-animation {
+            transform: scale(4);
+        }
+        footer {
+            background-color: #FFC0CB;
+            color: #333333;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        footer img {
+            vertical-align: middle;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .product {
+                width: 100%;
+                height: auto;
+                margin: 10px 0;
+            }
+            .image-container {
+                height: auto;
+            }
+            .image-container img {
+                height: auto;
+            }
+            #cart-modal-content {
+                width: 90%;
+                padding: 10px;
+            }
+            #cart-modal img {
+                width: 91px;
+                height: 63px;
+            }
+            .product-name, .product-price {
+                font-size: 0.8em;
+            }
+            .share-cart-btn {
+                font-size: 13px;
+                padding: 2px 5px;
+                width: 70%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .share-cart-btn img {
+                width: 8px;
+                height: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Logo de Serendipia" style="width: 100px; height: auto; display: block; margin: 0 auto;">
+        <h1>Serendipia - Tienda de tapices</h1>
+         <p class="sub-header">Completa tu carrito y compártemelo para terminar la compra. Compras con transferencia tienen el 10%</p>
+    </header>
+
+    <div class="products-container">
+        <!-- Aquí se agregarán los productos dinámicamente -->
+    </div>
+
+    <!-- Icono del carrito -->
+    <div id="cart-icon" onclick="openCartModal()">
+        <img src="carrito.png" alt="Carrito de Compras">
+        <div id="cart-counter">0</div>
+    </div>
+
+    <!-- Modal para el carrito -->
+    <div id="cart-modal" class="modal">
+        <div id="cart-modal-content">
+            <span class="close" onclick="closeCartModal()">&times;</span>
+            <h2>Lista de compras</h2>
+            <ul>
+                <!-- Aquí se agregarán los productos del carrito dinámicamente -->
+            </ul>
+            <p id="empty-cart-message">No hay productos en el carrito.</p>
+            <div id="total">Total: $0</div>
+            <button class="share-cart-btn" onclick="shareCart()">
+                <img src="WhatsApp_similar_logo.png" alt="WhatsApp">
+                Compartir carrito
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Presiona en el logo para abrir una conversación. <img src="WhatsApp_similar_logo.png" alt="WhatsApp" onclick="openWhatsApp()"></p>
+    </footer>
+
+    <script>
+        const products = [
+            { id: 1, name: 'Chakra con loto azul', price: 690, quantity: 1, images: ['Imagenes/1/1_1.png'] },
+            { id: 2, name: 'Quan Yin', price: 690, quantity: 14, images: ['Imagenes/2/2_1.png'] },
+            { id: 3, name: 'Buda anaranjado', price: 690, quantity: 5, images: ['Imagenes/3/3_1.png'] },
+            { id: 4, name: 'Buda celeste', price: 690, quantity: 2, images: ['Imagenes/4/4_1.png'] },
+            { id: 5, name: 'Chakra con loto fucsia', price: 690, quantity: 6, images: ['Imagenes/5/5_1.png'] },
+            { id: 6, name: 'Cartas tarot', price: 690, quantity: 10, images: ['Imagenes/6/6_1.png'] },
+            { id: 7, name: 'Mano de Fátima verde', price: 690, quantity: 11, images: ['Imagenes/7/7_1.png'] },
+            { id: 8, name: 'Mano de Fátima fucsia', price: 690, quantity: 14, images: ['Imagenes/8/8_1.png'] },
+            { id: 9, name: 'Mano de Fátima violeta', price: 690, quantity: 13, images: ['Imagenes/9/9_1.png'] },
+            { id: 10, name: 'Chakra metatron', price: 690, quantity: 7, images: ['Imagenes/10/10_1.png'] },
+            { id: 11, name: 'Fases lunares negro', price: 690, quantity: 5, images: ['Imagenes/11/11_1.png'] },
+            { id: 12, name: 'Fases lunares blanco', price: 690, quantity: 4, images: ['Imagenes/12/12_1.png'] },
+            { id: 13, name: 'Carta de tarot el Loco', price: 690, quantity: 2, images: ['Imagenes/13/13_1.png'] },
+            { id: 14, name: 'Carta de tarot la Emperatriz', price: 690, quantity: 1, images: ['Imagenes/14/14_1.png'] },
+            { id: 15, name: 'Buda colores abstracto', price: 690, quantity: 1, images: ['Imagenes/15/15_1.png'] }
+        ];
+        const cart = [];
+
+        function addToCart(productId, quantity) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const existingProduct = cart.find(item => item.id === productId);
+                if (existingProduct) {
+                    if (existingProduct.quantity + quantity <= product.quantity) {
+                        existingProduct.quantity += quantity;
+                    } else {
+                        alert(`No hay más unidades disponibles para ${product.name}`);
+                    }
+                } else {
+                    if (quantity <= product.quantity) {
+                        cart.push({ id: product.id, name: product.name, price: product.price, quantity: quantity, image: product.images[0] });
+                    } else {
+                        alert(`No hay más unidades disponibles para ${product.name}`);
+                    }
+                }
+                updateCart();
+                animateCartButton(productId);
+                animateCartIcon();
+            }
+        }
+
+        function updateCart() {
+            const cartList = document.querySelector('#cart-modal ul');
+            const totalElement = document.getElementById('total');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            const cartCounter = document.getElementById('cart-counter');
+            let total = 0;
+            let itemCount = 0;
+
+            cartList.innerHTML = '';
+
+            if (cart.length === 0) {
+                emptyCartMessage.style.display = 'block';
+                totalElement.style.display = 'none';
+            } else {
+                emptyCartMessage.style.display = 'none';
+                cart.forEach(item => {
+                    total += item.price * item.quantity;
+                    itemCount += item.quantity;
+                    cartList.innerHTML += `
+                        <li>
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="item-details">
+                                <p>${item.name}</p>
+                            </div>
+                            <div class="item-controls">
+                                <button onclick="removeFromCart(${item.id})">-</button>
+                                <span>${item.quantity}</span>
+                                <button onclick="addToCart(${item.id}, 1)">+</button>
+                            </div>
+                        </li>
+                    `;
+                });
+                totalElement.style.display = 'block';
+                totalElement.textContent = `Total: $${total.toFixed(2)}`;
+            }
+
+            cartCounter.textContent = itemCount;
+            animateCartIcon();
+        }
+
+
+        function removeFromCart(productId) {
+            const productInCart = cart.find(item => item.id === productId);
+            if (productInCart) {
+                productInCart.quantity--;
+                if (productInCart.quantity === 0) {
+                    const index = cart.indexOf(productInCart);
+                    cart.splice(index, 1);
+                }
+                updateCart();
+            }
+        }
+
+        function shareCart() {
+            const cartItems = cart.map(item => `${item.name} (Cantidad: ${item.quantity})`).join(', ');
+            const message = `Productos: ${cartItems}`;
+            const phoneNumber = '+59897431805';
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.style.display = 'none';
+        }
+
+        // Añadir evento para cerrar el modal de la imagen con la tecla Escape
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        function renderProducts() {
+            const productsContainer = document.querySelector('.products-container');
+
+            products.forEach(product => {
+                const img = new Image();
+                img.src = product.images[0];
+
+                img.onload = () => {
+                    const productElement = document.createElement('div');
+                    productElement.className = 'product';
+
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+
+                    const imgElement = document.createElement('img');
+                    imgElement.src = product.images[0];
+                    imgElement.alt = product.name;
+                    imgElement.dataset.index = 0;
+                    imgElement.onclick = () => openImageModal(product.images[0]);
+
+                    imageContainer.appendChild(imgElement);
+
+                    const name = document.createElement('p');
+                    name.className = 'product-name';
+                    name.textContent = product.name;
+
+                    const quantityAvailable = document.createElement('p');
+                    quantityAvailable.className = 'product-quantity';
+                    quantityAvailable.textContent = `Cantidad disponible: ${product.quantity}`;
+
+                    const quantityContainer = document.createElement('div');
+                    quantityContainer.className = 'quantity-container';
+
+                    const quantityInput = document.createElement('input');
+                    quantityInput.type = 'number';
+                    quantityInput.min = 1;
+                    quantityInput.max = product.quantity;
+                    quantityInput.value = 1;
+
+                    const incrementButton = document.createElement('button');
+                    incrementButton.textContent = '+';
+                    incrementButton.onclick = () => {
+                        if (quantityInput.value < product.quantity) {
+                            quantityInput.value = parseInt(quantityInput.value) + 1;
+                        }
+                    };
+
+                    const decrementButton = document.createElement('button');
+                    decrementButton.textContent = '-';
+                    decrementButton.onclick = () => {
+                        if (quantityInput.value > 1) {
+                            quantityInput.value = parseInt(quantityInput.value) - 1;
+                        }
+                    };
+
+                    quantityContainer.appendChild(decrementButton);
+                    quantityContainer.appendChild(quantityInput);
+                    quantityContainer.appendChild(incrementButton);
+
+                    const price = document.createElement('p');
+                    price.className = 'product-price';
+                    price.textContent = `$${product.price.toFixed(2)}`;
+
+                    const addToCartBtn = document.createElement('button');
+                    addToCartBtn.className = 'add-to-cart-btn';
+                    addToCartBtn.innerHTML = 'Al carrito<span class="cart-animation"></span>';
+                    addToCartBtn.onclick = () => addToCart(product.id, parseInt(quantityInput.value));
+
+                    productElement.appendChild(imageContainer);
+                    productElement.appendChild(name);
+                    productElement.appendChild(quantityAvailable); // Añadir cantidad disponible
+                    productElement.appendChild(price);
+                    productElement.appendChild(quantityContainer);
+                    productElement.appendChild(addToCartBtn);
+
+                    productsContainer.appendChild(productElement);
+                };
+
+                img.onerror = () => {
+                    console.error(`No se pudo cargar la imagen para el producto ${product.name}`);
+                };
+            });
+        }
+
+
+        function showPreviousImage(productId, imgElement) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                let currentIndex = parseInt(imgElement.dataset.index, 10);
+                const newIndex = (currentIndex - 1 + product.images.length) % product.images.length;
+                imgElement.src = product.images[newIndex];
+                imgElement.dataset.index = newIndex;
+            }
+        }
+
+        function showNextImage(productId, imgElement) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                let currentIndex = parseInt(imgElement.dataset.index, 10);
+                const newIndex = (currentIndex + 1) % product.images.length;
+                imgElement.src = product.images[newIndex];
+                imgElement.dataset.index = newIndex;
+            }
+        }
+
+        function animateCartButton(productId) {
+            const productElement = document.querySelector(`.product img[src*='${products.find(p => p.id === productId).images[0]}']`).closest('.product');
+            const addToCartBtn = productElement.querySelector('.add-to-cart-btn');
+            const cartAnimation = addToCartBtn.querySelector('.cart-animation');
+
+            addToCartBtn.classList.add('active');
+            cartAnimation.addEventListener('transitionend', () => {
+                addToCartBtn.classList.remove('active');
+            }, { once: true });
+        }
+
+        function animateCartIcon() {
+            const cartIcon = document.getElementById('cart-icon');
+            cartIcon.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                cartIcon.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        function openCartModal() {
+            const cartModal = document.getElementById('cart-modal');
+            cartModal.style.display = 'block';
+            updateCart();
+        }
+
+        function closeCartModal() {
+            const cartModal = document.getElementById('cart-modal');
+            cartModal.style.display = 'none';
+        }
+
+        function openWhatsApp() {
+            const phoneNumber = '+59897431805';
+            const url = `https://wa.me/${phoneNumber}`;
+            window.open(url, '_blank');
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeCartModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+        });
+    </script>
+    <div id="image-modal" class="image-modal">
+    <span class="close" onclick="closeImageModal()">&times;</span>
+    <img class="image-modal-content" id="modal-image">
+</div>
+</body>
+</html>
