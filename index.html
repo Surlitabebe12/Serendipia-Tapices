@@ -409,21 +409,21 @@
 
     <script>
         const products = [
-            { id: 1, name: 'Siete chakras con loto azul', price: 650, quantity: 9, images: ['Imagenes/1/1_1.png'] },
-            { id: 2, name: 'Quan Yin', price: 650, quantity: 13, images: ['Imagenes/2/2_1.png'] },
-            { id: 3, name: 'Buda anaranjado', price: 650, quantity: 3, images: ['Imagenes/3/3_1.png'] },
-            { id: 4, name: 'Buda celeste', price: 650, quantity: 2, images: ['Imagenes/4/4_1.png'] },
-            { id: 5, name: 'Siete chakras con loto fucsia', price: 650, quantity: 4, images: ['Imagenes/5/5_1.png'] },
-            { id: 6, name: 'Cartas tarot', price: 650, quantity: 7, images: ['Imagenes/6/6_1.png'] },
-            { id: 7, name: 'Mano de Fátima verde', price: 650, quantity: 11, images: ['Imagenes/7/7_1.png'] },
-            { id: 8, name: 'Mano de Fátima fucsia', price: 650, quantity: 14, images: ['Imagenes/8/8_1.png'] },
-            { id: 9, name: 'Mano de Fátima violeta', price: 650, quantity: 13, images: ['Imagenes/9/9_1.png'] },
-            { id: 10, name: 'Siete chakras metatron', price: 650, quantity: 7, images: ['Imagenes/10/10_1.png'] },
-            { id: 11, name: 'Fases lunares negro', price: 650, quantity: 5, images: ['Imagenes/11/11_1.png'] },
-            { id: 12, name: 'Fases lunares blanco', price: 650, quantity: 4, images: ['Imagenes/12/12_1.png'] },
-            { id: 13, name: 'Carta de tarot el Loco', price: 650, quantity: 2, images: ['Imagenes/13/13_1.png'] },
-            //{ id: 14, name: 'Carta de tarot la Emperatriz', price: 650, quantity: 1, images: ['Imagenes/14/14_1.png'] },
-            { id: 15, name: 'Buda colores abstracto', price: 650, quantity: 1, images: ['Imagenes/15/15_1.png'] }
+            { id: 1, name: 'Siete chakras con loto azul', price: 690, quantity: 7, images: ['Imagenes/1/1_1.png'] },
+            { id: 2, name: 'Quan Yin', price: 690, quantity: 2, images: ['Imagenes/2/2_1.png'] },
+            { id: 3, name: 'Buda anaranjado', price: 690, quantity: 2, images: ['Imagenes/3/3_1.png'] },
+            { id: 4, name: 'Buda celeste', price: 690, quantity: 0, images: ['Imagenes/4/4_1.png'] },
+            { id: 5, name: 'Siete chakras con loto fucsia', price: 690, quantity: 2, images: ['Imagenes/5/5_1.png'] },
+            { id: 6, name: 'Cartas tarot', price: 690, quantity: 5, images: ['Imagenes/6/6_1.png'] },
+            { id: 7, name: 'Mano de Fátima verde', price: 690, quantity: 11, images: ['Imagenes/7/7_1.png'] },
+            { id: 8, name: 'Mano de Fátima fucsia', price: 690, quantity: 10, images: ['Imagenes/8/8_1.png'] },
+            { id: 9, name: 'Mano de Fátima violeta', price: 690, quantity: 11, images: ['Imagenes/9/9_1.png'] },
+            { id: 10, name: 'Siete chakras metatron', price: 690, quantity: 4, images: ['Imagenes/10/10_1.png'] },
+            { id: 11, name: 'Fases lunares negro', price: 690, quantity: 5, images: ['Imagenes/11/11_1.png'] },
+            { id: 12, name: 'Fases lunares blanco', price: 690, quantity: 3, images: ['Imagenes/12/12_1.png'] },
+            { id: 13, name: 'Carta de tarot el Loco', price: 690, quantity: 2, images: ['Imagenes/13/13_1.png'] },
+            { id: 14, name: 'Carta de tarot la Emperatriz', price: 650, quantity: 0, images: ['Imagenes/14/14_1.png'] },
+            { id: 15, name: 'Buda colores abstracto', price: 690, quantity: 1, images: ['Imagenes/15/15_1.png'] }
         ];
         const cart = [];
 
@@ -558,7 +558,12 @@
 
                     const quantityAvailable = document.createElement('p');
                     quantityAvailable.className = 'product-quantity';
-                    quantityAvailable.textContent = `Cantidad disponible: ${product.quantity}`;
+                    if (product.quantity > 0) {
+                        quantityAvailable.textContent = `Cantidad disponible: ${product.quantity}`;
+                    } else {
+                        quantityAvailable.textContent = 'Agotado';
+                        quantityAvailable.style.color = 'red';
+                    }
 
                     const quantityContainer = document.createElement('div');
                     quantityContainer.className = 'quantity-container';
@@ -568,6 +573,7 @@
                     quantityInput.min = 1;
                     quantityInput.max = product.quantity;
                     quantityInput.value = 1;
+                    quantityInput.disabled = product.quantity === 0;
 
                     const incrementButton = document.createElement('button');
                     incrementButton.textContent = '+';
@@ -576,6 +582,7 @@
                             quantityInput.value = parseInt(quantityInput.value) + 1;
                         }
                     };
+                    incrementButton.disabled = product.quantity === 0;
 
                     const decrementButton = document.createElement('button');
                     decrementButton.textContent = '-';
@@ -584,6 +591,7 @@
                             quantityInput.value = parseInt(quantityInput.value) - 1;
                         }
                     };
+                    decrementButton.disabled = product.quantity === 0;
 
                     quantityContainer.appendChild(decrementButton);
                     quantityContainer.appendChild(quantityInput);
@@ -597,10 +605,11 @@
                     addToCartBtn.className = 'add-to-cart-btn';
                     addToCartBtn.innerHTML = 'Al carrito<span class="cart-animation"></span>';
                     addToCartBtn.onclick = () => addToCart(product.id, parseInt(quantityInput.value));
+                    addToCartBtn.disabled = product.quantity === 0;
 
                     productElement.appendChild(imageContainer);
                     productElement.appendChild(name);
-                    productElement.appendChild(quantityAvailable); // Añadir cantidad disponible
+                    productElement.appendChild(quantityAvailable);
                     productElement.appendChild(price);
                     productElement.appendChild(quantityContainer);
                     productElement.appendChild(addToCartBtn);
@@ -613,6 +622,7 @@
                 };
             });
         }
+
 
 
         function showPreviousImage(productId, imgElement) {
